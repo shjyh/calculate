@@ -1,5 +1,5 @@
 export function randomNum(min: number, max: number) {
-    const range = Math.abs(min - max + 1);
+    const range = Math.abs(min - max) + 1;
     const startNumber = Math.min(min, max);
 
     return Math.floor(Math.random() * range + startNumber);

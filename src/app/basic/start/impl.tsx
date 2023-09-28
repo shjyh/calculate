@@ -1,10 +1,11 @@
 "use client";
 
 import { Oper, getRandomItem, randomNum } from "@/app/_util";
-import { Box, Button, ButtonGroup, Card, CardBody, CardFooter, CardHeader, Center, Container, Heading, Input, Text, VStack } from "@chakra-ui/react";
+import { Input } from "@chakra-ui/react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useMemoizedFn } from "ahooks";
-import { useRouter } from "next/navigation";
+import ResultPage from "@/app/_components/ResultPage";
+import CalcFormulaPage from "@/app/_components/CalcFormulaPage";
 
 interface CalcInfo {
     num1: number;
@@ -101,38 +102,27 @@ export default function Start({m, t}: {m: boolean, t: boolean}) {
         }
     })
 
-    const router = useRouter();
+    const resultTitle = useMemo(()=>{
+        let b = "基础练习";
+        if(m) {
+            b += "+乘除";
+        }
+        if(t) {
+            b += "+两位数";
+        }
+        return b;
+    }, [m, t]);
 
-    function back() {
-        router.back();
+    if(showResult){
+        return <ResultPage 
+            title={resultTitle}
+            time={stat.time}
+            count={stat.count}
+            onAgain={start}
+        />
     }
 
-    return (
-        <Container height="100vh">
-            {
-            showResult ?
-            <Center height="100vh">
-                <Card maxW="80%">
-                    <CardHeader textAlign="center"><Heading as="h3">测试成绩</Heading></CardHeader>
-                    <CardBody>
-                        <VStack align="start">
-                            <Text fontSize='md'>共答<Text as="span" fontSize="lg" color="green.500">{calcNum.current}</Text>题</Text>
-                            <Text fontSize='md'>共用时<Text as="span" fontSize="lg" color="green.500">{(stat.time / 1000).toFixed(2)}</Text>秒</Text>
-                            <Text fontSize='md'>平均每题用时<Text as="span" fontSize="lg" color="green.500">{((stat.time / 1000) / stat.count).toFixed(2)}</Text>秒</Text>
-                        </VStack>
-                    </CardBody>
-                    <CardFooter as={Center}>
-                        <ButtonGroup>
-                            <Button colorScheme='teal' onClick={back}>返回</Button>
-                            <Button colorScheme="blue" onClick={start}>再来一次</Button>
-                        </ButtonGroup>
-                    </CardFooter>
-                </Card>
-            </Center>:
-            !!currentCalcInfo && <CalcItem info={currentCalcInfo} onSuccess={onSuccess} />
-            }
-        </Container>
-    )
+    return !!currentCalcInfo && <CalcItem info={currentCalcInfo} onSuccess={onSuccess} />
 }
 
 interface CalcItemProps {
@@ -155,12 +145,9 @@ function CalcItem({ info, onSuccess }: CalcItemProps) {
         }
     }, [answer]);
 
-    return (
-        <Center height="30vh">
-            <Text fontSize="xl">{info.num1} {info.opt} {info.num2} =&ensp;</Text>
-            <Box width="5em">
-                <Input type="number" value={answer} autoFocus variant='flushed' placeholder='填写答案' size="lg" onChange={onChange}/>
-            </Box>
-        </Center>
-    )
+    return <CalcFormulaPage formula={
+        <>{info.num1} {info.opt} {info.num2} =&ensp;</>
+    } result={
+        <Input type="number" value={answer} autoFocus variant='flushed' placeholder='填写答案' size="lg" onChange={onChange}/>
+    } />
 }
